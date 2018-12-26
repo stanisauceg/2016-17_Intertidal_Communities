@@ -1,3 +1,5 @@
+### libraries ####
+
 library(data.table)
 library(binom)
 library(vegan)
@@ -5,16 +7,19 @@ library(lme4)
 library(pbkrtest)
 library(tidyverse)
 
+### load data, remove extra rows ####
+
 data.path <- file.path("data", "counts.csv")
 data <- read_csv(data.path)
 
+dim(data)
 # data should not have 2578 obs.
 str(data)
 head(data)
 tail(data)
-# View(data)
+data[320:335,]
 
-# remove unsorted chaff at bottom of document
+# remove unsorted chaff at bottom of document - this was leftover from on-the-spot calculations
 data <- data[0:330,]
 
 # convert specified columns to factors
@@ -28,12 +33,12 @@ data <- data %>%
 data <- data %>% filter(!TimeStep %in% c("2", "3"),
                         layer != "all")
 
-summary(data) # 109 time 0, 109 time 1a+1b, 108 time 4; 109 L1, 109 L3, 108 L2
+summary(data) # note: 109 time 0, 109 time 1a+1b, 108 time 4; 109 L1, 109 L3, 108 L2
 # sort(data$plot[c(which(data$TimeStep==0))])
 # data[which(data$plot=="L3-5"),]
 # photo tcDSCN0870 is an empty duplicate of L3-5, remove it - this takes care of L3 time 0
 data %>% dim()
-data %>% filter(photo != "tcDSCN0870") %>% dim() # cuts too many rows!
+data %>% filter(photo != "tcDSCN0870") %>% dim() # cuts too many rows! should be 3*108 = 324
 data %>% as.tbl() %>% filter(is.na(photo)) # the NAs do it
 data %>% filter(!photo %in% c("tcDSCN0870")) %>% dim() # this works
 data <- data %>% filter(!photo %in% c("tcDSCN0870"))
@@ -53,6 +58,11 @@ data[dup,] # that's the one
 data <- data[-dup, ]
 rm(dup)
 
+### prepare for analyses ####
+
+#      consolidate certain taxa based on my ability to consistently ID them
+#      simplify names 
+
 # prepare to consolidate all brown encrusting algae: convert NA values to 0
 data$`brown encrusting (red)`[which(is.na(data$`brown encrusting (red)`))]<-0
 data$`Hildenbrandia`[which(is.na(data$`Hildenbrandia`))]<-0
@@ -68,7 +78,8 @@ data <- data %>%
          crab.sm = 'crab - small',
          crab.lg = 'crab - large',
          epiphyte.red.brown.scuzzy = 'brown/red scuzzy epiphyte',
-         hydroid = 'hydroid (Dynamena?)')
+         hydroid = 'hydroid (Dynamena?)',
+         loose.surface = 'sand/gravel/chips/debris')
 colnames(data)
 
 # consolidate encrusting algae, crabs, & ephemeral algae
@@ -97,9 +108,9 @@ data <- data %>%
   # convert hydroid to dbl
   mutate(hydroid = as.numeric(hydroid))
 
-data
+summary(data)
 
-### append plot treatments to data
+### append plot treatments to data ####
 
 # load treatments
 treatments.path <- file.path("data", "treatments.csv")
@@ -110,12 +121,16 @@ treatments
 treatments <- treatments[1:108,c(1,3:5)]
 treatments
 
+# change "removal" column to "diversity(sp_removed)' for now, for clarity
+# also change all column names to lower case
 treatments <- treatments %>% 
   rename(removal = 'diversity(sp_removed)') %>%
   rename_all(tolower)
 
+# rename the cage-ctrl treatment as "roof"
 treatments$pred[which(treatments$pred == "cage-ctrl")] <- "roof"
 
+# convert to factor
 treatments <- treatments %>%
   mutate(site = as.factor(site),
          id = as.factor(id),
@@ -124,18 +139,23 @@ treatments <- treatments %>%
 
 summary(treatments)
 
+# rename id column as "plot"
 treatments <- treatments %>% rename(plot = id)
 
+# join the main data frame
 data <- data %>% left_join(treatments, by = c("site" = "site", "plot" = "plot"))
 rm(treatments)
 
 summary(data)
 str(data)
 
-data
+# arrange by plot and time
 data <- data %>%
   arrange(plot, TimeStep)
 
+
+### create data frame showing cover of each target species over time
+# melt
 mdat <- melt(data, id.vars= c("site","plot","TimeStep","date","pred","removal"),
            measure.vars = c("Fucus","Mytilus","barnacle"), 
            variable.name="species", value.name="pct.cover")
@@ -146,7 +166,10 @@ str(mdat)
 mdat$sp.T<-paste(mdat$species,mdat$TimeStep,sep="-")
 mdat$sp.T<-factor(mdat$sp.T)
 
+# recast
 dat<-dcast(mdat,site+plot+pred+removal~sp.T,value.var="pct.cover")
+summary(dat)
+
 which(dat$removal=="A"|dat$removal=="B")
 
 #### test reinvasion: is end cover greater than immediate post-removal cover? ####
