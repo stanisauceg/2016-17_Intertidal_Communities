@@ -202,6 +202,7 @@ sum((dat$`Mytilus-4`[which(dat$removal=="B"|dat$removal=="A")]-
 sum((dat$`Mytilus-4`[which(dat$removal=="none")]-dat$`Mytilus-1`[which(dat$removal=="none")])>0)/27
 
 
+# add regrowth amount of each species (from time 1 to time 4) to the data frame
 dat$re.A<-1*(dat$`Fucus-4`-dat$`Fucus-1`>0)
 dat$re.B<-1*(dat$`barnacle-4`-dat$`barnacle-1`>0)
 dat$re.M<-1*(dat$`Mytilus-4`-dat$`Mytilus-1`>0)
@@ -223,14 +224,15 @@ t.test(dat$`Fucus-0`[which(dat$removal=="B")],dat$`Fucus-1`[which(dat$removal=="
 
 t.test(dat$`Fucus-4`[which(dat$removal=="none")],dat$`Fucus-1`[which(dat$removal=="none")],
        alternative="two.sided",paired=TRUE)
+
 t.test(dat$`Fucus-4`[which(dat$removal=="none" & dat$pred=="open")],
        dat$`Fucus-1`[which(dat$removal=="none" & dat$pred=="open")],
        alternative="two.sided",paired=TRUE)
 
 
-a.growth<-dat$`Fucus-4`[which(dat$removal=="none")]-dat$`Fucus-1`[which(dat$removal=="none")]
-preds<-dat$pred[which(dat$removal=="none")]
-summary(aov(a.growth~preds))
+a.growth <- dat$`Fucus-4`[which(dat$removal=="none")] - dat$`Fucus-1`[which(dat$removal=="none")]
+preds <- dat$pred[which(dat$removal=="none")]
+summary(aov(a.growth ~ preds))
 
 table(dat$removal, dat$re.A)
 re.A.vec = tapply(dat$re.A,dat$removal,sum)
@@ -260,17 +262,17 @@ prop.test(23,27, p=0.5, alternative="greater",correct = TRUE)
 prop.test(27,27, p=0.5, alternative="greater", correct=TRUE)
 prop.test(26,27, p=0.5, alternative="greater", correct=TRUE)
 
-props<-numeric(length = 3)
-lower<-numeric(length = 3)
-upper<-numeric(length = 3)
-df<-data.frame(cbind(props, lower, upper))
-df$successes<-c(23,27,26)
-df$props<-df$successes/27
+props <- numeric(length = 3)
+lower <- numeric(length = 3)
+upper <- numeric(length = 3)
+df <- data.frame(cbind(props, lower, upper))
+df$successes <- c(23,27,26)
+df$props <- df$successes/27
 for(i in 1:3){
-  df$lower[i]<-prop.test(df$successes[i],27, p=0.5, alternative="greater", correct=TRUE)$conf.int[1]
+  df$lower[i] <- prop.test(df$successes[i],27, p=0.5, alternative="greater", correct=TRUE)$conf.int[1]
 }  
 for(i in 1:3){
-  df$upper[i]<-prop.test(df$successes[i],27, p=0.5, alternative="greater", correct=TRUE)$conf.int[2]
+  df$upper[i] <- prop.test(df$successes[i],27, p=0.5, alternative="greater", correct=TRUE)$conf.int[2]
 }  
 df$species<-factor(c("Fucus", "Barnacle","Mussel"), levels=c("Fucus", "Barnacle", "Mussel"))
 
@@ -291,26 +293,17 @@ ggplot(data=df,mapping=aes(y=props,x=species))+
   #       axis.ticks=element_blank(),
   #       axis.line.x =element_blank()) 
 
-ps<-c(
+ps <- c(
   prop.test(23,27, p=0.5, alternative="greater", correct=TRUE)$p.value,
   prop.test(27,27, p=0.5, alternative="greater", correct=TRUE)$p.value,
   prop.test(26,27, p=0.5, alternative="greater", correct=TRUE)$p.value
 )
 
-# # order p values smallest to largest (there are 3)
-# # find smallest k such that p[k]>alpha/(3+1-k)
-# ks<-seq(from=1,to=length(ps))
-# test<-numeric(length=length(ks))
-# hb<-data.frame(cbind(ks,test))
-# hb$test<-.05/(length(ps)+1-hb$ks)
-# hb$ps<-sort(ps)
-# hb$welp<- hb$ps < hb$test
-# hb
 p.adjust(ps, method="holm")
 
-dat.A<-dat[which(dat$removal=="A"),]
-dat.B<-dat[which(dat$removal=="B"),]
-dat.M<-dat[which(dat$removal=="M"),]
+dat.A <- dat[which(dat$removal=="A"),]
+dat.B <- dat[which(dat$removal=="B"),]
+dat.M <- dat[which(dat$removal=="M"),]
 
 table(dat.A$pred, dat.A$re.A) # reinvasions in 8-8-7 for cage-open-roof
 table(dat.B$pred, dat.B$re.B) # reinvasions in 9-9-9 for cage-open-roof
@@ -321,12 +314,12 @@ prop.test(c(9,9,8),c(9,9,9))
 prop.test(c(9,9,9),c(9,9,9))
 
 # regrowth amount - arithmetic (linear) growth
-dat$d.A<-dat$`Fucus-4`-dat$`Fucus-1`
-dat$d.B<-dat$`barnacle-4`-dat$`barnacle-1`
-dat$d.M<-dat$`Mytilus-4`-dat$`Mytilus-1`
-rA<-which(dat$removal=="A")
-rB<-which(dat$removal=="B")
-rM<-which(dat$removal=="M")
+dat$d.A <- dat$`Fucus-4`-dat$`Fucus-1`
+dat$d.B <- dat$`barnacle-4`-dat$`barnacle-1`
+dat$d.M <- dat$`Mytilus-4`-dat$`Mytilus-1`
+rA <- which(dat$removal=="A")
+rB <- which(dat$removal=="B")
+rM <- which(dat$removal=="M")
 rN <- which(dat$removal == "none")
 
 mean(dat$d.A[rA])
@@ -336,46 +329,46 @@ sd(dat$d.A[rA])/sqrt(27)
 sd(dat$d.B[rB])/sqrt(27)
 sd(dat$d.M[rM])/sqrt(27)
 
-regrowth<-numeric(length=3)
-df2<-data.frame(regrowth)
-df2$regrowth<-c(mean(dat$d.A[rA]),
+regrowth <- numeric(length=3)
+df2 <- data.frame(regrowth)
+df2$regrowth <- c(mean(dat$d.A[rA]),
                 mean(dat$d.B[rB]),
                 mean(dat$d.M[rM]))
-df2$se<-c(sd(dat$d.A[rA])/sqrt(27),
-          sd(dat$d.B[rB])/sqrt(27),
-          sd(dat$d.M[rM])/sqrt(27))
-df2$species<-df$species
+df2$se <- c(sd(dat$d.A[rA]) / sqrt(27),
+          sd(dat$d.B[rB]) / sqrt(27),
+          sd(dat$d.M[rM]) / sqrt(27))
+df2$species <- df$species
 
-ggplot(data=df2,mapping=aes(y=regrowth,x=species))+
+ggplot(df2, aes(y=regrowth, x=species))+
   geom_point()+
-  geom_errorbar(aes(ymin=regrowth-se,ymax=regrowth+se),width=.1)+
+  geom_errorbar(aes(ymin=regrowth-se, ymax=regrowth+se), width=.1)+
   # ggtitle("Regrowth of focal species following removal")+
   labs(y="Increase in cover after removal \n (percentage points)",x="Focal species")+
   geom_hline(yintercept = 0, linetype=2)+
   theme_bw()
 
 df3 <- data.frame(matrix(nrow=6))
-df3$growth<-c(mean(dat$d.A[rA]),
+df3$growth <- c(mean(dat$d.A[rA]),
               mean(dat$d.B[rB]),
               mean(dat$d.M[rM]),
               mean(dat$d.A[-rA]),
               mean(dat$d.B[-rB]),
               mean(dat$d.M[-rM]))
-df3$se<-c(sd(dat$d.A[rA])/sqrt(81),
-          sd(dat$d.B[rB])/sqrt(81),
-          sd(dat$d.M[rM])/sqrt(81),
-          sd(dat$d.A[-rA])/sqrt(81),
-          sd(dat$d.B[-rB])/sqrt(81),
-          sd(dat$d.M[-rM])/sqrt(81))
+df3$se <- c(sd(dat$d.A[rA])/ sqrt(81),
+          sd(dat$d.B[rB]) / sqrt(81),
+          sd(dat$d.M[rM]) / sqrt(81),
+          sd(dat$d.A[-rA]) / sqrt(81),
+          sd(dat$d.B[-rB]) / sqrt(81),
+          sd(dat$d.M[-rM]) / sqrt(81))
 
 df3[,1] <- NULL
 df3$species <- rep(df2$species, 2)
 df3$Status <- factor(c(rep("invader", 3), rep("resident", 3)))
 df3
 
-ggplot(data=df3,mapping=aes(y=growth,x=species, col=Status))+
+ggplot(df3, aes(y=growth, x=species, col=Status))+
   geom_point()+
-  geom_errorbar(aes(ymin=growth-se,ymax=growth+se),width=.1)+
+  geom_errorbar(aes(ymin=growth-se, ymax=growth+se), width=.1)+
   # ggtitle("Regrowth of focal species following removal")+
   labs(y="Change in cover after treatment \n (percentage points)",x="Focal species")+
   geom_hline(yintercept = 0, linetype=2)+
@@ -390,7 +383,7 @@ ggplot(data=df3,mapping=aes(y=growth,x=species, col=Status))+
         text = element_text(size=16)) 
 
 df4 <- data.frame(matrix(nrow=12))
-df4$growth<-c(mean(dat$d.A[rA]),
+df4$growth <- c(mean(dat$d.A[rA]),
               mean(dat$d.B[rA]),
               mean(dat$d.M[rA]),
               mean(dat$d.A[rB]),
@@ -402,7 +395,7 @@ df4$growth<-c(mean(dat$d.A[rA]),
               mean(dat$d.A[rN]),
               mean(dat$d.B[rN]),
               mean(dat$d.M[rN]))
-df4$se<-c(sd(dat$d.A[rA])/sqrt(27),
+df4$se <- c(sd(dat$d.A[rA])/sqrt(27),
           sd(dat$d.B[rA])/sqrt(27),
           sd(dat$d.M[rA])/sqrt(27),
           sd(dat$d.A[rB])/sqrt(27),
@@ -420,10 +413,10 @@ df4$species <- rep(df2$species, 4)
 df4$Invader <- factor(c(rep("Fucus", 3), rep("Barnacle", 3), rep("Mussel", 3), rep("Control",3)))
 df4
 
-dodge=position_dodge(width=0.2)
-ggplot(data=df4,mapping=aes(y=growth,x=species, col=Invader))+
+dodge = position_dodge(width=0.2)
+ggplot(df4, aes(y=growth, x=species, col=Invader))+
   geom_point(position=dodge)+
-  geom_errorbar(aes(ymin=growth-se,ymax=growth+se),width=.1,position=dodge)+
+  geom_errorbar(aes(ymin=growth-se, ymax=growth+se), width=.1, position=dodge)+
   # ggtitle("Regrowth of focal species following removal")+
   labs(y="Change in cover after treatment \n (percentage points)",x="Focal species")+
   geom_hline(yintercept = 0, linetype=2)+
@@ -442,6 +435,10 @@ ggplot(data=df4,mapping=aes(y=growth,x=species, col=Invader))+
 # dat$r.A<-
   ((dat$`Fucus-4`+5)/(dat$`Fucus-1`+5))
 
+
+### Ordination ####
+
+### nMDS
 
 names(data)
 community <- data[,6:16]
