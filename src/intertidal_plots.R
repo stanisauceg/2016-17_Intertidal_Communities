@@ -21,6 +21,21 @@ data[320:335,]
 
 # remove unsorted chaff at bottom of document - this was leftover from on-the-spot calculations
 data <- data[0:330,]
+# still some extra rows, will deal with them soon
+
+## load treatments
+treatments.path <- file.path("data", "treatments.csv")
+treatments <- read_csv(treatments.path)
+dim(treatments)
+
+head(treatments)
+# retain Site & ID as key columns, diversity and pred treatment columns; only first 108 rows have useful data
+treatments <- treatments[1:108,c(1,3:5)]
+treatments
+
+
+rm(data.path, treatments.path)
+
 
 # convert specified columns to factors
 data <- data %>%
@@ -34,11 +49,11 @@ data <- data %>% filter(!TimeStep %in% c("2", "3"),
                         layer != "all")
 
 summary(data) # note: 109 time 0, 109 time 1a+1b, 108 time 4; 109 L1, 109 L3, 108 L2
-# sort(data$plot[c(which(data$TimeStep==0))])
-# data[which(data$plot=="L3-5"),]
-# photo tcDSCN0870 is an empty duplicate of L3-5, remove it - this takes care of L3 time 0
-data %>% dim()
-data %>% filter(photo != "tcDSCN0870") %>% dim() # cuts too many rows! should be 3*108 = 324
+sort(data$plot[c(which(data$TimeStep==0))])
+data[which(data$plot=="L3-5"),]
+# photo tcDSCN0870 is an empty duplicate of L3-5
+dim(data)
+data %>% filter(photo != "tcDSCN0870") %>% dim() # cuts too many rows! should be 3*108 = 324 rows remaining
 data %>% as.tbl() %>% filter(is.na(photo)) # the NAs do it
 data %>% filter(!photo %in% c("tcDSCN0870")) %>% dim() # this works
 data <- data %>% filter(!photo %in% c("tcDSCN0870"))
@@ -58,10 +73,13 @@ data[dup,] # that's the one
 data <- data[-dup, ]
 rm(dup)
 
+head(data)
+dim(data)
+
 ### prepare for analyses ####
 
-#      consolidate certain taxa based on my ability to consistently ID them
-#      simplify names 
+#   consolidate certain taxa based on my ability to consistently ID them
+#   simplify names 
 
 # prepare to consolidate all brown encrusting algae: convert NA values to 0
 data$`brown encrusting (red)`[which(is.na(data$`brown encrusting (red)`))]<-0
@@ -69,7 +87,7 @@ data$`Hildenbrandia`[which(is.na(data$`Hildenbrandia`))]<-0
 data$`Petrocelis`[which(is.na(data$`Petrocelis`))]<-0
 data$`Ralfsia`[which(is.na(data$`Ralfsia`))]<-0
 
-# fix names
+# edit names
 data <- data %>%
   rename(crust.red.brown = 'brown encrusting (red)',
          dead.barnacle = 'dead barnacle',
@@ -112,14 +130,7 @@ summary(data)
 
 ### append plot treatments to data ####
 
-# load treatments
-treatments.path <- file.path("data", "treatments.csv")
-treatments <- read_csv(treatments.path)
-treatments
-
-# retain Site & ID as key columns, diversity and pred treatment columns; only first 108 rows have useful data
-treatments <- treatments[1:108,c(1,3:5)]
-treatments
+head(treatments)
 
 # change "removal" column to "diversity(sp_removed)' for now, for clarity
 # also change all column names to lower case
@@ -139,6 +150,7 @@ treatments <- treatments %>%
 
 summary(treatments)
 
+# looks as it should.
 # rename id column as "plot"
 treatments <- treatments %>% rename(plot = id)
 
