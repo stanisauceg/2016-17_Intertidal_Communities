@@ -9,8 +9,8 @@ library(tidyverse)
 
 ### load data, remove extra rows ####
 
-data.path <- file.path("data", "counts.csv")
-data <- read_csv(data.path)
+data_path <- file.path("data", "counts.csv")
+data <- read_csv(data_path)
 
 dim(data)
 # data should not have 2578 obs.
@@ -24,17 +24,18 @@ data <- data[0:330,]
 # still some extra rows, will deal with them soon
 
 ## load treatments
-treatments.path <- file.path("data", "treatments.csv")
-treatments <- read_csv(treatments.path)
+treatments_path <- file.path("data", "treatments.csv")
+treatments <- read_csv(treatments_path)
 dim(treatments)
 
 head(treatments)
+tail(treatments, n = 15)
 # retain Site & ID as key columns, diversity and pred treatment columns; only first 108 rows have useful data
 treatments <- treatments[1:108,c(1,3:5)]
 treatments
 
 
-rm(data.path, treatments.path)
+rm(data_path, treatments_path)
 
 
 # convert specified columns to factors
