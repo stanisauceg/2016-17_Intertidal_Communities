@@ -1,6 +1,6 @@
 library(tidyverse)
 
-### load data ####
+### load data #####################
 
 # data import wrapper fxn with "...", just for fun!
 path.read.csv <- function(...){
@@ -15,12 +15,10 @@ dim(data)
 str(data)
 head(data)
 tail(data)
-
 # there are some extra rows, will deal with them soon
 
-## load treatments
-treatments_path <- file.path("data", "treatments.csv")
-treatments <- read_csv(treatments_path)
+## load treatments for each plot
+treatments <- path.read.csv("data", "treatments.csv")
 dim(treatments)
 
 head(treatments)
@@ -29,15 +27,7 @@ tail(treatments, n = 15)
 treatments <- treatments[1:108,c(1,3:5)]
 treatments
 
-
-rm(data_path, treatments_path)
-
-
-# convert specified columns to factors
-data <- data %>%
-  mutate(site = as.factor(site),
-         layer = as.factor(layer),
-         plot = as.factor(plot))
+###### address the extra rows ##################
 
 # restrict to times 0, 1, 4, since remaining times not yet measured;
 # remove non-canopy photos
@@ -50,7 +40,7 @@ data[which(data$plot=="L3-5"),]
 # photo tcDSCN0870 is an empty duplicate of L3-5
 dim(data)
 data %>% filter(photo != "tcDSCN0870") %>% dim() # cuts too many rows! should be 3*108 = 324 rows remaining
-data %>% as.tbl() %>% filter(is.na(photo)) # the NAs do it
+data %>% filter(is.na(photo)) # the NAs do it
 data %>% filter(!photo %in% c("tcDSCN0870")) %>% dim() # this works
 data <- data %>% filter(!photo %in% c("tcDSCN0870"))
 
@@ -72,7 +62,13 @@ rm(dup)
 head(data)
 dim(data)
 
-### prepare for analyses ####
+####### prepare for analyses ###################
+
+# convert specified columns to factors
+data <- data %>%
+  mutate(site = as.factor(site),
+         layer = as.factor(layer),
+         plot = as.factor(plot))
 
 #   consolidate certain taxa based on my ability to consistently ID them
 #   simplify names 
@@ -124,7 +120,7 @@ data <- data %>%
 
 summary(data)
 
-### append plot treatments to data ####
+##### join plot treatments to data ###############
 
 head(treatments)
 
