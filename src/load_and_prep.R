@@ -1,20 +1,22 @@
 library(tidyverse)
 
-### load data, remove extra rows ####
+### load data ####
 
-data_path <- file.path("data", "counts.csv")
-data <- read_csv(data_path)
+# data import wrapper fxn with "...", just for fun!
+path.read.csv <- function(...){
+  data_path <- file.path(...)
+  df <- read_csv(data_path)
+  return(df)
+}
+
+data <- path.read.csv("data", "counts.csv")
 
 dim(data)
-# data should not have 2578 obs.
 str(data)
 head(data)
 tail(data)
-data[320:335,]
 
-# remove unsorted chaff at bottom of document - this was leftover from on-the-spot calculations
-data <- data[0:330,]
-# still some extra rows, will deal with them soon
+# there are some extra rows, will deal with them soon
 
 ## load treatments
 treatments_path <- file.path("data", "treatments.csv")
