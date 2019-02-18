@@ -31,14 +31,14 @@ NMDS <- data.frame(MDS1 = community_mds$points[,1],
                    Pred = data_del$pred)
 
 
-adonis_time <- function(timestep) {
+adonis_del_time <- function(timestep) {
   a <- adonis(vegdist(data_del[timestep, c(6:16)], method="bray")
          ~ pred*removal, strata=data_del$site[timestep], data=data_del[timestep,], permutations=9999)
   return(a)
 }
 
-adonis_time(t0)
-adonis_time(t1)
-adonis_time(t4)
+adonis_del_time(t0)
+adonis_del_time(t1)
+adonis_del_time(t4)
 
 # yields (qualitatively) same PERMANOVA results as unrestricted data set
