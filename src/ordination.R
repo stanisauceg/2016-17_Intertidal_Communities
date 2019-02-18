@@ -10,12 +10,12 @@ community <- data[,6:16]
 id.tags <- data[,c(1:4,17:18)]
 
 # which observations are for which times, given sequence 0 - 1 - 4 - 0 - 1 - 4 - etc.
-t0<-seq(from=1,by=3,length=108)
-t1<-seq(from=2,by=3,length=108)
-t4<-seq(from=3,by=3,length=108)
+t0 <- seq(from=1,by=3,length=108)
+t1 <- seq(from=2,by=3,length=108)
+t4 <- seq(from=3,by=3,length=108)
 
 # removal treatment for each observation
-treat<-id.tags$removal[t0]
+treat <- id.tags$removal[t0]
 
 
 ### run nMDS 
@@ -37,6 +37,8 @@ NMDS <- tibble(MDS1 = MDS1, MDS2 = MDS2, MDS3 = MDS3,
 summary(NMDS)
 str(NMDS)
 
+rm(MDS1, MDS2, MDS3)
+
 # Rename removal treatments to be more informative. 
 # Currently a factor, so un-factor it first.
 NMDS$Removal <- as.character(NMDS$Removal)
@@ -55,6 +57,8 @@ mds_cols <- cbind(MDS1, MDS2, MDS3)
 
 centroids <- aggregate(mds_cols ~ Removal * Pred * TimeStep, NMDS, mean) # full factorial, 3 factors
 centroids.r <- aggregate(mds_cols ~ Removal * TimeStep, NMDS, mean) # no predation
+
+rm(mds_cols)
 
 # species nMDS scores
 NMDS_species <- data.frame(scores(community.mds, display="species"))
@@ -180,7 +184,7 @@ plot_3_timesteps(removal_plot)
 
 community.mds
 
-### Analysis of Similarities (ANOSIM) ####
+##### Analysis of Similarities (ANOSIM) ###################
 
 my_anosims <- function(timestep) {
   a <- anosim(data[timestep,6:16], grouping=data$removal[timestep])
@@ -191,7 +195,7 @@ my_anosims <- function(timestep) {
 list(t0, t1, t4) %>% walk(my_anosims)
 
 
-### PERMANOVA
+##### PERMANOVA ##########################
 
 # full model
 set.seed(24)
