@@ -1,4 +1,5 @@
 library(tidyverse)
+library(lubridate)
 
 ### load data #####################
 
@@ -26,6 +27,7 @@ tail(treatments, n = 15)
 # retain Site & ID as key columns, diversity and pred treatment columns; only first 108 rows have useful data
 treatments <- treatments[1:108,c(1,3:5)]
 treatments
+tail(treatments)
 
 ###### address the extra rows ##################
 
@@ -40,7 +42,7 @@ data[which(data$plot=="L3-5"),]
 # photo tcDSCN0870 is an empty duplicate of L3-5
 dim(data)
 data %>% filter(photo != "tcDSCN0870") %>% dim() # cuts too many rows! should be 3*108 = 324 rows remaining
-data %>% filter(is.na(photo)) # the NAs do it
+data %>% filter(is.na(photo)) # the NAs do it -- problems w/ comparing NA to a value!!
 data %>% filter(!photo %in% c("tcDSCN0870")) %>% dim() # this works
 data <- data %>% filter(!photo %in% c("tcDSCN0870"))
 
@@ -64,21 +66,6 @@ dim(data)
 
 ####### prepare for analyses ###################
 
-# convert specified columns to factors
-data <- data %>%
-  mutate(site = as.factor(site),
-         layer = as.factor(layer),
-         plot = as.factor(plot))
-
-#   consolidate certain taxa based on my ability to consistently ID them
-#   simplify names 
-
-# prepare to consolidate all brown encrusting algae: convert NA values to 0
-data$`brown encrusting (red)`[which(is.na(data$`brown encrusting (red)`))]<-0
-data$`Hildenbrandia`[which(is.na(data$`Hildenbrandia`))]<-0
-data$`Petrocelis`[which(is.na(data$`Petrocelis`))]<-0
-data$`Ralfsia`[which(is.na(data$`Ralfsia`))]<-0
-
 # edit names
 data <- data %>%
   rename(crust.red.brown = 'brown encrusting (red)',
@@ -92,6 +79,14 @@ data <- data %>%
          loose.surface = 'sand/gravel/chips/debris')
 colnames(data)
 
+#   consolidate certain taxa based on my ability to consistently ID them
+
+# prepare to consolidate all brown encrusting algae: convert NA values to 0
+data$crust.red.brown[which(is.na(data$crust.red.brown))] <- 0
+data$Hildenbrandia[which(is.na(data$Hildenbrandia))] <- 0
+data$Petrocelis[which(is.na(data$Petrocelis))] <- 0
+data$Ralfsia[which(is.na(data$Ralfsia))] <- 0
+
 # consolidate encrusting algae, crabs, & ephemeral algae
 data <- data %>%
   mutate(crust.red.brown = crust.red.brown + Hildenbrandia + Petrocelis + Ralfsia,
@@ -100,14 +95,18 @@ data <- data %>%
   select(-Hildenbrandia, -Petrocelis, -Ralfsia, -crab.lg, -crab.sm,
          -Ulva, -Dumontia, -epiphyte.red.brown.scuzzy, -Porphyra)
 
-data$date <- as.Date(data$date, "%m/%d/%Y")
+# consolidate TimeStep 1a and 1b as "1"
+data$TimeStep[c(which(data$TimeStep=="1a"), which(data$TimeStep=="1b"))]<-"1"
+
+## type conversions: factors, dates
+data <- data %>%
+  mutate(site = as.factor(site),
+         layer = as.factor(layer),
+         plot = as.factor(plot),
+         TimeStep = as.factor(TimeStep),
+         date = mdy(date))
 
 summary(data)
-
-# clean up TimeStep, convert to factor
-data$TimeStep[c(which(data$TimeStep=="1a"), which(data$TimeStep=="1b"))]<-"1"
-data$TimeStep <- as.factor(data$TimeStep)
-levels(data$TimeStep)
 
 # more tidying up
 data <- data %>%
@@ -124,8 +123,7 @@ summary(data)
 
 head(treatments)
 
-# change "removal" column to "diversity(sp_removed)' for now, for clarity
-# also change all column names to lower case
+# edit column names
 treatments <- treatments %>% 
   rename(removal = 'diversity(sp_removed)') %>%
   rename_all(tolower)
@@ -150,9 +148,11 @@ treatments <- treatments %>% rename(plot = id)
 data <- data %>% left_join(treatments, by = c("site" = "site", "plot" = "plot"))
 rm(treatments)
 
-summary(data)
 str(data)
 
 # arrange by plot and time
 data <- data %>%
   arrange(plot, TimeStep)
+
+summary(data)
+str(data)
