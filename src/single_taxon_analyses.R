@@ -16,7 +16,7 @@ species_names <- c("barnacle" = "Barnacle",
 
 dodge <- position_dodge(width = 0.1)
 
-ggplot(mdat, aes(x = TimeStep, y = pct.cover, color = removal)) +
+ggplot(mdat, aes(x = TimeStep, y = pct_cover, color = removal)) +
   stat_summary(fun.y = mean, geom = "point", size = 2, position = dodge) +
   stat_summary(fun.y = mean, geom = "line", aes(group = removal), 
                linetype = 2, position = dodge) +
