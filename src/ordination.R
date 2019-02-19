@@ -177,8 +177,8 @@ plot_3_timesteps <- function(plot_fxn) {
   walk2(.f = plot_fxn, .x = time_steps, .y = plot_titles)
 }
 
-plot_3_timesteps(site_plot)
-plot_3_timesteps(pred_plot)
+# plot_3_timesteps(site_plot)
+# plot_3_timesteps(pred_plot)
 plot_3_timesteps(removal_plot)
 # plot_3_timesteps(pred_by_removal_plot)
 

@@ -47,3 +47,4 @@ weights <- c(5.96, 10.62, 36.21)
 predict_A(weights)
 # compare to 35, 10, and 85-90 % cover
 
+rm(list = ls())
