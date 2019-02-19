@@ -1,13 +1,14 @@
-library(tidyverse)
+# library(tidyverse)
 library(vegan)
 
 ### Ordination ###
 
 ### nMDS #########
 
+# split into community matrix vs enviro/"gradient"
 names(data)
 community <- data[,6:16]
-id.tags <- data[,c(1:4,17:18)]
+id_tags <- data[,c(1:4,17:18)]
 
 # which observations are for which times, given sequence 0 - 1 - 4 - 0 - 1 - 4 - etc.
 t0 <- seq(from=1,by=3,length=108)
@@ -15,22 +16,22 @@ t1 <- seq(from=2,by=3,length=108)
 t4 <- seq(from=3,by=3,length=108)
 
 # removal treatment for each observation
-treat <- id.tags$removal[t0]
+treat <- id_tags$removal[t0]
 
 
 ### run nMDS 
 set.seed(24)
-community.mds<-metaMDS(community,distance="bray",trymax=50,k=3)
+community_mds<-metaMDS(community, distance="bray", trymax=50, k=3)
 
-community.mds
+community_mds
 
 ## check stress plot
-stressplot(community.mds)
+stressplot(community_mds)
 
 ## create data frame to plot nMDS with ggplot2
-NMDS <- tibble(MDS1 = community.mds$points[,1], 
-               MDS2 = community.mds$points[,2], 
-               MDS3 = community.mds$points[,3],
+NMDS <- tibble(MDS1 = community_mds$points[,1], 
+               MDS2 = community_mds$points[,2], 
+               MDS3 = community_mds$points[,3],
                Plot = data$plot, 
                Site = data$site, 
                TimeStep = data$TimeStep,
@@ -52,7 +53,7 @@ NMDS$Removal[which(NMDS$Removal == "none")] <- "No Removal"
 # re-factor
 NMDS$Removal <- factor(NMDS$Removal, levels = c("Fucus", "Barnacle", "Mussel", "No Removal"))
 
-# get the centroids for each grouping
+# get the centroids for each grouping, to display centroids on plots
 mds_cols <- cbind(MDS1 = NMDS$MDS1, MDS2 = NMDS$MDS2, MDS3 = NMDS$MDS3)
 
 centroids <- aggregate(mds_cols ~ Removal * Pred * TimeStep, NMDS, mean) # full factorial, 3 factors
@@ -60,8 +61,8 @@ centroids.r <- aggregate(mds_cols ~ Removal * TimeStep, NMDS, mean) # no predati
 
 rm(mds_cols)
 
-# species nMDS scores
-NMDS_species <- data.frame(scores(community.mds, display="species"))
+# species nMDS scores to display labels on plots
+NMDS_species <- data.frame(scores(community_mds, display="species"))
 rownames(NMDS_species)
 rownames(NMDS_species)[5]<-"encrusting"
 rownames(NMDS_species)[7]<-"debris"
