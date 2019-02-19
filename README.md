@@ -8,6 +8,8 @@ of the organisms that constitute the rocky intertidal community at Beavertail St
 
 * **load_and_prep** imports & prepares data for the main analysis.
 
-* **ordination** contains the multivariate analyses (nMDS, ANOSIM, PERMANOVA).
+* **ordination** contains the multivariate analyses (nMDS, ANOSIM, PERMANOVA). PERMANOVA is preferred in this case.
 
 * **deletion_sensitivity** repeats the PERMANOVA after excluding plots for which I imputed algal cover
+
+* **single_taxon_analyses** considers the taxa one-by-one, which is not the best statistical approach, but easier to comprehend. 
