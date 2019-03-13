@@ -3,6 +3,7 @@ Do the organisms found on rocky shores *coexist* or *co-occur*?
 
 Code is to evaluate a set of 108 experimental plots where I measured percent cover (canopy level)
 of the organisms that constitute the rocky intertidal community at Beavertail State Park in Jamestown, Rhode Island.
+Full report is in the third chapter of https://opencommons.uconn.edu/dissertations/1914/.
 
 * **scrapings_cover-to-weight** helps impute algal cover for several plots where algae were scraped before a photo could be taken.
 
